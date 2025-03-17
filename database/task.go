@@ -1,10 +1,10 @@
-package postgres
+package database
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"glovee-worker/internal/types"
+	"glovee-worker/types"
 )
 
 func (db *DB) DequeueTask(ctx context.Context, taskType types.TaskType) (*types.Task, error) {

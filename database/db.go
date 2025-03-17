@@ -1,9 +1,9 @@
-package postgres
+package database
 
 import (
 	"context"
 	"fmt"
-	"glovee-worker/internal/config"
+	"glovee-worker/types"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -12,8 +12,8 @@ type DB struct {
 	pool *pgxpool.Pool
 }
 
-func NewDB(ctx context.Context, config *config.Config) (*DB, error) {
-	const operation = "repository.postgres.NewDB"
+func NewDB(ctx context.Context, config *types.Config) (*DB, error) {
+	const operation = "database.NewDB"
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		config.Postgres.Username,

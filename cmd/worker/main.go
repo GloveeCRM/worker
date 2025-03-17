@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"glovee-worker/internal/config"
-	"glovee-worker/internal/repository/postgres"
-	"glovee-worker/internal/types"
+	"glovee-worker/config"
+	"glovee-worker/database"
+	"glovee-worker/service/email"
+	"glovee-worker/types"
 	"log"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -15,7 +15,7 @@ import (
 func main() {
 	config := config.NewConfig()
 
-	db, err := postgres.NewDB(context.Background(), config)
+	db, err := database.NewDB(context.Background(), config)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -31,9 +31,12 @@ func main() {
 		return
 	}
 
-	jsonBytes, err := json.MarshalIndent(task, "", "    ")
+	emailService := email.NewService(config)
+	emailData := task.Data.(types.Email)
+	err = emailService.SendEmail(&emailData)
 	if err != nil {
-		log.Fatalf("Failed to marshal task to JSON: %v", err)
+		log.Fatalf("Failed to send email: %v", err)
 	}
-	fmt.Println(string(jsonBytes))
+
+	fmt.Println("Email sent successfully")
 }

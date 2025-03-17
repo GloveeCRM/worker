@@ -1,32 +1,23 @@
 package config
 
 import (
+	"glovee-worker/types"
 	"os"
 	"strconv"
 )
 
-type PostgresConfig struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Database string
-	SSLMode  string
-}
-
-type Config struct {
-	Postgres PostgresConfig
-}
-
-func NewConfig() *Config {
-	return &Config{
-		Postgres: PostgresConfig{
+func NewConfig() *types.Config {
+	return &types.Config{
+		Postgres: types.PostgresConfig{
 			Host:     os.Getenv("POSTGRES_HOST"),
 			Port:     getEnvInt("POSTGRES_PORT", 0),
 			Username: os.Getenv("POSTGRES_USER"),
 			Password: os.Getenv("POSTGRES_PASSWORD"),
 			Database: os.Getenv("POSTGRES_DB"),
 			SSLMode:  os.Getenv("POSTGRES_SSLMODE"),
+		},
+		Email: types.EmailConfig{
+			ResendAPIKey: os.Getenv("RESEND_API_KEY"),
 		},
 	}
 }
