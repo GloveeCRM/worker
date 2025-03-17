@@ -2,39 +2,40 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"glovee-worker/internal/config"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DB struct {
-	*sql.DB
+	pool *pgxpool.Pool
 }
 
 func NewDB(ctx context.Context, config *config.Config) (*DB, error) {
 	const operation = "repository.postgres.NewDB"
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		config.Postgres.Host,
-		config.Postgres.Port,
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
 		config.Postgres.Username,
 		config.Postgres.Password,
+		config.Postgres.Host,
+		config.Postgres.Port,
 		config.Postgres.Database,
 		config.Postgres.SSLMode,
 	)
 
-	db, err := sql.Open("postgres", connStr)
+	pool, err := pgxpool.New(ctx, connStr)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", operation, err)
 	}
 
-	if err := db.PingContext(ctx); err != nil {
+	if err := pool.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("%s: %w", operation, err)
 	}
 
-	return &DB{DB: db}, nil
+	return &DB{pool: pool}, nil
 }
 
-func (db *DB) Close() error {
-	return db.DB.Close()
+func (db *DB) Close() {
+	db.pool.Close()
 }

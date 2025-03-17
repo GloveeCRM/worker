@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"glovee-worker/internal/config"
 	"glovee-worker/internal/repository/postgres"
+	"glovee-worker/internal/types"
 	"log"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
@@ -19,9 +21,19 @@ func main() {
 	}
 	defer db.Close()
 
-	hi, err := db.SayHello()
+	task, err := db.DequeueTask(context.Background(), types.TaskTypeEmail)
 	if err != nil {
-		log.Fatalf("Failed to say hello: %v", err)
+		log.Fatalf("Failed to dequeue task: %v", err)
 	}
-	fmt.Println(hi)
+
+	if task == nil {
+		fmt.Println("No task available")
+		return
+	}
+
+	jsonBytes, err := json.MarshalIndent(task, "", "    ")
+	if err != nil {
+		log.Fatalf("Failed to marshal task to JSON: %v", err)
+	}
+	fmt.Println(string(jsonBytes))
 }
