@@ -6,6 +6,8 @@ type TaskType string
 
 const (
 	TaskTypeEmail TaskType = "email"
+	// TODO: Add other task types here
+	// E.g. TaskTypeSMS   TaskType = "sms"
 )
 
 type Task struct {

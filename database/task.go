@@ -25,18 +25,28 @@ func (db *DB) DequeueTask(ctx context.Context, taskType types.TaskType) (*types.
 	}
 
 	// Handle the data field based on task type
-	if task.TaskType == types.TaskTypeEmail {
+	dataBytes, err := json.Marshal(task.Data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal task data: %w", err)
+	}
+
+	switch task.TaskType {
+	case types.TaskTypeEmail:
 		var emailData struct {
 			Email types.Email `json:"email"`
-		}
-		dataBytes, err := json.Marshal(task.Data)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal task data: %w", err)
 		}
 		if err := json.Unmarshal(dataBytes, &emailData); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal email data: %w", err)
 		}
 		task.Data = emailData.Email
+		// TODO: Add other task types here
+		// E.g. types.TaskTypeSMS:
+		// var smsData struct {
+		// 	SMS types.SMS `json:"sms"`
+		// }
+		// if err := json.Unmarshal(dataBytes, &smsData); err != nil {
+		// 	return nil, fmt.Errorf("failed to unmarshal sms data: %w", err)
+		// }
 	}
 
 	return &task, nil
