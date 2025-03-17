@@ -24,3 +24,13 @@ type Task struct {
 	Metadata     any       `json:"metadata"`
 	Data         any       `json:"data"`
 }
+
+type TaskResult struct {
+	Success    bool   `json:"success"`
+	Message    string `json:"message"`
+	TaskType   string `json:"task_type"`
+	ResourceID int64  `json:"resource_id"`
+	Retries    int    `json:"retries,omitempty"`
+	MaxRetries int    `json:"max_retries,omitempty"`
+	Error      string `json:"error,omitempty"`
+}

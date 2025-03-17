@@ -34,9 +34,25 @@ func main() {
 	emailService := email.NewService(config)
 	emailData := task.Data.(types.Email)
 	err = emailService.SendEmail(&emailData)
-	if err != nil {
-		log.Fatalf("Failed to send email: %v", err)
+
+	metadata := map[string]any{
+		"email_id": emailData.EmailID,
 	}
 
-	fmt.Println("Email sent successfully")
+	var errorMessage string
+	if err != nil {
+		errorMessage = err.Error()
+		log.Printf("Failed to send email: %v", err)
+	}
+
+	result, err := db.ProcessTaskResult(context.Background(), task.TaskID, err == nil, errorMessage, metadata)
+	if err != nil {
+		log.Fatalf("Failed to process task result: %v", err)
+	}
+
+	if result.Success {
+		fmt.Println("Email sent and task completed successfully")
+	} else {
+		fmt.Printf("Task failed: %s\n", result.Error)
+	}
 }
