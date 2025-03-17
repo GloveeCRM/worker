@@ -1,0 +1,9 @@
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7460:7460"
+    env_file:
+      - .env
